@@ -1,0 +1,40 @@
+= dm-keeper-adapter
+
+A DataMapper adapter for features.opensuse.org
+
+== Usage
+
+This adapter allows easy access to the openSUSE feature database using
+DataMapper. It supports features, relationtrees, productlines, and
+products.
+
+features.opensuse.org is the web frontend, the database server
+provides an xquery API at https://keeper.novell.com/sxkeeper, which is
+used by this adapter - hence the name.
+
+== Install
+
+Install it with
+
+  gem install dm-keeper-adapter
+
+== Code
+
+  require 'rubygems'
+  require 'dm-core'
+  require 'dm-keeper-adapter'
+
+  DataMapper::Logger.new($stdout, :debug)
+  
+  # Retrieves credentials from ~/.oscrc if exists
+  # Otherwise add user:pass@ before keeper.novell.com 
+  keeper = DataMapper.setup(:default, :adapter => 'keeper', :url  => 'https://keeper.novell.com/sxkeeper')
+
+  require 'keeper/feature'
+  DataMapper.finalize
+
+  f = Feature.get(311545)
+
+== TODO
+
+Real DataMapper queries mapped to XPath

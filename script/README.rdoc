@@ -1,0 +1,5 @@
+keeper.novell.com also provides structure information about the
+entities stored in its database.
+
+generate_class.rb is a sample Ruby script showing how to use this
+information to generate Ruby classes for use with DataMapper.
