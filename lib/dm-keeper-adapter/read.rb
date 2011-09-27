@@ -1,4 +1,7 @@
 # read.rb
+
+require 'cgi'
+
 module DataMapper::Adapters
   class KeeperAdapter < AbstractAdapter
     require 'nokogiri'
@@ -53,13 +56,13 @@ module DataMapper::Adapters
     #
     # @api private
     def perform_query(query, operand)
-#      $stderr.puts "perform_query(#{query},#{operand})"
       records = []
-		    
-      if operand.is_a?(DataMapper::Query::Conditions::NotOperation)
+       
+      case operand
+      when DataMapper::Query::Conditions::NotOperation
 	subject = operand.first.subject
 	value = operand.first.value
-      elsif operand.subject.is_a?(DataMapper::Associations::ManyToOne::Relationship)
+      when DataMapper::Associations::ManyToOne::Relationship
 	subject = operand.subject.child_key.first
 	value = operand.value[operand.subject.parent_key.first.name]
       else
@@ -71,6 +74,8 @@ module DataMapper::Adapters
 	subject = subject.child_key.first
       end
       
+#      $stderr.puts "perform_query(\n\tsubject#{subject.inspect}\n\t#{value.inspect})"
+
       # typical queries
       #
       # ?query=/feature[
@@ -79,7 +84,7 @@ module DataMapper::Adapters
       #  ]
       #  and
       #  actor[
-      #    (person/userid='kkaempf@novell.com' or person/email='kkaempf@novell.com' or person/fullname='kkaempf@novell.com')
+      #    (person/userid='kkaempf@suse.com' or person/email='kkaempf@suse.com' or person/fullname='kkaempf@suse.com')
       #    and
       #    role='projectmanager'
       #  ]
@@ -98,18 +103,23 @@ module DataMapper::Adapters
       container = query.model.to_s.downcase
       if query.model.key.include?(subject)
 	# get single <feature>
-	records << node_to_record(query.model, get("/#{container}/#{value}").root)
+	records << node_to_record(query.model, get("/#{container}/#{CGI.escape(value.to_s)}").root)
       else
 	# query, get <collection>[<object><feature>...]*
 	xpath = "/#{container}["
-	# ...
+	case operand
+	when DataMapper::Query::Conditions::EqualToComparison
+	  xpath << "contains(#{subject.name},'#{CGI.escape(value)}')"
+	else
+	  raise "Unhandled operand #{operand.class}"
+	end
 	xpath << "]"
-	collection = get("/#{container}?query=#{xpath}")
-	collection.xpath("/#{container}").each do |feature|
-	  records << node_to_record(query.model, feature)
+	collection = get("/#{container}?query=#{xpath}").root
+	collection.xpath("//#{container}", collection.namespace).each do |node|
+	  records << node_to_record(query.model, node)
 	end
       end
-      
+
       records
     end # def
 

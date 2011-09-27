@@ -8,7 +8,6 @@ require "dm-keeper-adapter/update"
 require "dm-keeper-adapter/delete"
 require "dm-keeper-adapter/misc"
 
-
 module DataMapper
   class Property
     autoload :XML, "property/xml"
