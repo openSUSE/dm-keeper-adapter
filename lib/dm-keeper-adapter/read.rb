@@ -57,12 +57,12 @@ module DataMapper::Adapters
     # @api private
     def perform_query(query, operand)
       records = []
+#      STDERR.puts "perform_query(query#{query}, operand #{operand})"
        
-      case operand
-      when DataMapper::Query::Conditions::NotOperation
+      if operand.is_a? DataMapper::Query::Conditions::NotOperation
 	subject = operand.first.subject
 	value = operand.first.value
-      when DataMapper::Associations::ManyToOne::Relationship
+      elsif operand.subject.is_a? DataMapper::Associations::ManyToOne::Relationship
 	subject = operand.subject.child_key.first
 	value = operand.value[operand.subject.parent_key.first.name]
       else
@@ -141,6 +141,10 @@ module DataMapper::Adapters
       model.properties.each do |property|
 	xpath = xpathmap[property.name] || property.name
 	key = property.name.to_s
+	if key == "raw"
+	  record[key] = node.to_s
+	  next
+	end
 	children = node.xpath("./#{xpath}", xmlnamespaces)	
 #	$stderr.puts "Property found: #{property.inspect}"
 	case children.size
@@ -161,16 +165,6 @@ module DataMapper::Adapters
 	else
 	  raise TypeError, "#{property} unsupported"
 	end
-      end
-      model.relationships.each do |rel|
-#	$stderr.puts "Rel ? #{rel.inspect}"
-	children = node.xpath("./#{rel.child_model_name.downcase}")
-	value = []
-	while n = children.shift
-	  value << node_to_record(rel.child_model, n)
-	end
-	record[rel.name.to_s] = value
-#	$stderr.puts "#{rel.name} -> #{value.inspect}"
       end
       record
     end
