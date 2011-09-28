@@ -12,7 +12,7 @@ class Get_relationtree_test < Test::Unit::TestCase
     DataMapper.finalize
   end
 
-  def xtest_get_relationtree_by_id
+  def test_get_relationtree_by_id
     # Access relationtree by id
     tree = Relationtree.get(1137)
     assert tree
