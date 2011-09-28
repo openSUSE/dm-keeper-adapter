@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), 'helper')
 
-class Get_bug_test < Test::Unit::TestCase
+class Get_feature_test < Test::Unit::TestCase
 
-  def test_get_bug
+  def test_get_feature
     DataMapper::Logger.new(STDOUT, :debug)
     keeper = DataMapper.setup(:default,
 			      :adapter => 'keeper',
