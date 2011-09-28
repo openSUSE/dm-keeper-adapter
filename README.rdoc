@@ -33,7 +33,16 @@ Install it with
   require 'keeper/feature'
   DataMapper.finalize
 
+  # Get feature by ID
   f = Feature.get(311545)
+
+  # Finding features (see http://datamapper.org/docs/find.html)
+
+  # Get feature by title (assuming there's only one)
+  f = Feature.first(:title => "Feature title")
+  
+  # Get all features matching a title string
+  features = Feature.all(:title.like => "foobar")
 
 == TODO
 

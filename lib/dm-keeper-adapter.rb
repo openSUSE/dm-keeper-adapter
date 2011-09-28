@@ -74,7 +74,7 @@ module DataMapper::Adapters
     end
 
     def get(path)
-#      STDERR.puts "Get #{@uri.path} + #{path}"
+      STDERR.puts "Get #{@uri.path} + #{path}"
       request = Net::HTTP::Get.new @uri.path + path
       request.basic_auth @username, @password
       response = @connection.request request
