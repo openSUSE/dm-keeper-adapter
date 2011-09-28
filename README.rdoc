@@ -38,3 +38,11 @@ Install it with
 == TODO
 
 Real DataMapper queries mapped to XPath
+
+== License
+
+MIT
+
+== Author
+
+Klaus Kämpf <kkaempf@suse.com>
