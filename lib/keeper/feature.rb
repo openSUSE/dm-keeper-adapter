@@ -13,7 +13,9 @@ class Feature
       :productmgr => "actor[role='productmanager']/person/email",
       :projectmgr => "actor[role='projectmanager']/person/email",
       :engmgr => "actor[role='teamleader']/person/email",
-      :developer => "actor[role='developer']/person/email"
+      :developer => "actor[role='developer']/person/email",
+      :productid => "productcontext/product/productid",
+      :product => "productcontext/product/name"
     }
   end
   def self.xmlnamespaces
@@ -28,4 +30,6 @@ class Feature
   property :engmgr, String
   property :developer, String
   property :milestone, String
+  property :productid, String
+  property :product, String
 end
