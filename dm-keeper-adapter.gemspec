@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Klaus Kämpf"]
   s.email       = ["kkaempf@suse.de"]
-  s.homepage    = ""
+  s.homepage    = "https://github.com/openSUSE/dm-keeper-adapter"
   s.summary     = %q{A datamapper adapter for FATE (aka keeper.novell.com)}
   s.description = %q{Use it in Ruby applications to access FATE}
 
