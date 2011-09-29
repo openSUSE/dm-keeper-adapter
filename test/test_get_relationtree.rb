@@ -20,7 +20,7 @@ class Get_relationtree_test < Test::Unit::TestCase
 
   def test_get_relationtree_by_name
     # Access relationtree by name
-    tree = Relationtree.first(:title => "Manager 1.2.1")
+    tree = Relationtree.first(:title.like => "Manager 1.2.1")
     assert tree
     assert tree.title
     assert tree.description
