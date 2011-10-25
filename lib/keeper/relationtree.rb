@@ -38,7 +38,7 @@ class Relationtree
     require 'nokogiri'
     xml = Nokogiri::XML.parse @raw
     parent = nil
-    xml.root.xpath("/relationtree/relation").each do |rel|
+    xml.root.xpath("//relation").each do |rel|
       retval << node2relation(rel)
     end
     retval
