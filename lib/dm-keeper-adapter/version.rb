@@ -3,6 +3,6 @@ require 'dm-core/adapters/abstract_adapter'
 
 module DataMapper::Adapters
   class KeeperAdapter < AbstractAdapter
-    VERSION = "0.0.4"
+    VERSION = "0.1.0"
   end
 end
