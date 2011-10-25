@@ -15,7 +15,10 @@ class Feature
       :engmgr => "actor[role='teamleader']/person/email",
       :developer => "actor[role='developer']/person/email",
       :productid => "productcontext/product/productid",
-      :product => "productcontext/product/name"
+      :product => "productcontext/product/name",
+      :done => "productcontext/status/done",
+      :rejected => "productcontext/status/rejected",
+      :duplicate => "productcontext/status/duplicate"
     }
   end
   def self.xmlnamespaces
@@ -32,4 +35,7 @@ class Feature
   property :milestone, String
   property :productid, String
   property :product, String
+  property :done, Boolean
+  property :rejected, Boolean
+  property :duplicate, Boolean
 end

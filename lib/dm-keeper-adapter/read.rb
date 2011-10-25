@@ -182,11 +182,14 @@ module DataMapper::Adapters
 #	$stderr.puts "Property found: #{property.inspect}"
 	case children.size
 	when 0: next
-	when 1: value = children.text
+	when 1
+	  value = children.text.strip
+#	  STDERR.puts "done: #{value.inspect}" if xpath =~ /done/
+	  value = children.to_xml if value.empty?
 	else
 	  value = children.to_xml
 	end
-#	$stderr.puts "Key #{key}, Value #{value} <#{property.class}>"
+#	$stderr.puts "Key #{key}, Value #{value.inspect} <#{property.class}>"
 	case property
 	when DataMapper::Property::Date
 	  require 'parsedate'
@@ -195,6 +198,8 @@ module DataMapper::Adapters
 	  record[key] = value.to_s
 	when DataMapper::Property::String
 	  record[key] = value.to_s
+	when DataMapper::Property::Boolean
+	  record[key] = !value.nil?
 	else
 	  raise TypeError, "#{property} unsupported"
 	end
