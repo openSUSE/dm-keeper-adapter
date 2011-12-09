@@ -4,7 +4,7 @@ require "dm-keeper-adapter/version"
 
 Gem::Specification.new do |s|
   s.name        = "dm-keeper-adapter"
-  s.version     = DataMapper::Adapters::KeeperAdapter::VERSION
+  s.version     = KeeperAdapter::VERSION
 
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Klaus Kämpf"]
