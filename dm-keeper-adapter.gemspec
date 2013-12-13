@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   # get credentials from ~/.oscrc
   s.add_dependency("inifile", ["~> 0.4.1"])
   # parse xml response
-  s.add_dependency("nokogiri", ["~> 1.4"])
+  s.add_dependency("nokogiri", ["~> 1.5"])
 
   s.rubyforge_project = "dm-keeper-adapter"
 
