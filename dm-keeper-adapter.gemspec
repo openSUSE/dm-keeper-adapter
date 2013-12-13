@@ -17,6 +17,8 @@ Gem::Specification.new do |s|
   s.add_dependency("inifile", ["~> 0.4.1"])
   # parse xml response
   s.add_dependency("nokogiri", ["~> 1.5"])
+  # DataMapper types
+  s.add_dependency("dm-types", ["~> 1.2"])
 
   s.rubyforge_project = "dm-keeper-adapter"
 
