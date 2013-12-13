@@ -181,7 +181,8 @@ module DataMapper::Adapters
 	children = node.xpath("./#{xpath}", xmlnamespaces)	
 #	$stderr.puts "Property found: #{property.inspect}"
 	case children.size
-	when 0: next
+	when 0
+          next
 	when 1
 	  value = children.text.strip
 #	  STDERR.puts "done: #{value.inspect}" if xpath =~ /done/
