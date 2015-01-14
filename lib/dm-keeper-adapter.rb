@@ -37,6 +37,7 @@ require "dm-keeper-adapter/read"
 require "dm-keeper-adapter/update"
 require "dm-keeper-adapter/delete"
 require "dm-keeper-adapter/misc"
+require "dm-keeper-adapter/version"
 
 module DataMapper
   class Property
@@ -59,7 +60,7 @@ module DataMapper::Adapters
       @password = options[:password]
       unless @username && @password
 	require 'inifile'
-	oscrc = IniFile.new(File.join(ENV['HOME'], '.oscrc'))
+	oscrc = IniFile.load(File.join(ENV['HOME'], '.oscrc'))
         if oscrc.has_section?(OSCRC_CREDENTIALS)
           @username = oscrc[OSCRC_CREDENTIALS]['user']
           @password = oscrc[OSCRC_CREDENTIALS]['pass']

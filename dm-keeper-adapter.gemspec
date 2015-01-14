@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "dm-keeper-adapter/version"
+require "dm-keeper-adapter"
 
 Gem::Specification.new do |s|
   s.name        = "dm-keeper-adapter"
-  s.version     = KeeperAdapter::VERSION
+  s.version     = DataMapper::Adapters::KeeperAdapter::VERSION
 
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Klaus Kämpf"]
@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   s.description = %q{Use it in Ruby applications to access FATE}
 
   # get credentials from ~/.oscrc
-  s.add_dependency("inifile", ["~> 0.4.1"])
+  s.add_dependency("inifile", ["~> 3.0.0"])
   # parse xml response
-  s.add_dependency("nokogiri", ["~> 1.5"])
+  s.add_dependency("nokogiri", ["~> 1.6"])
   # DataMapper types
   s.add_dependency("dm-types", ["~> 1.2"])
 

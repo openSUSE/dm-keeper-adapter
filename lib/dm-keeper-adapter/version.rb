@@ -1,3 +1,5 @@
-class KeeperAdapter
-  VERSION = "0.1.1"
+module DataMapper::Adapters
+class KeeperAdapter < AbstractAdapter
+  VERSION = "0.1.2"
+end
 end
