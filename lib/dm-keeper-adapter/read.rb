@@ -132,8 +132,11 @@ module DataMapper::Adapters
 #      STDERR.puts "perform_query(subject #{subject.inspect},#{value.inspect})"
       container = query.model.to_s.downcase
       if operand.nil?
-#        STDERR.puts "GET ALL"
-	records << node_to_record(query.model, get("/#{container}").root)
+#        STDERR.puts "GET ALL #{container}"
+	collection = get("/#{container}").root
+	collection.xpath("//#{container}", collection.namespace).each do |node|
+	  records << node_to_record(query.model, node)
+	end
       elsif query.model.key.include?(subject)
 	# get single <feature>
 #        STDERR.puts "***\tGET(/#{container}/#{value})"
@@ -216,7 +219,7 @@ module DataMapper::Adapters
 	when DataMapper::Property::Boolean
 	  record[key] = !value.nil?
 	when DataMapper::Property::Class
-          puts "Class property #{property.name.capitalize} value #{value.inspect}"
+#         STDERR.puts "Class property #{property.name.capitalize} value #{value.inspect}"
           val = DataMapper.const_get(property.name.capitalize).new
           case property.name
           when :productline
