@@ -210,6 +210,15 @@ module DataMapper::Adapters
 	  record[key] = value.to_s
 	when DataMapper::Property::Boolean
 	  record[key] = !value.nil?
+	when DataMapper::Property::Class
+          puts "Class property #{property.name.capitalize} value #{value.inspect}"
+          val = DataMapper.const_get(property.name.capitalize).new
+          case property.name
+          when :productline
+            val.id = children.attribute("id")
+            val.name = value.to_s
+          end
+	  record[key] = val
 	else
 	  raise TypeError, "#{property} unsupported"
 	end

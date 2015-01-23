@@ -8,7 +8,7 @@ class Feature
   include DataMapper::Resource
 
   def self.xpathmap
-    { :id => "@k:id", :milestone => "productcontext/milestone/name", :actors => "actor",
+    { :id => "@k:id", :milestone => "productcontext/milestone/name",
       :requester => "actor[role='requester']/person/email",
       :productmgr => "actor[role='productmanager']/person/email",
       :projectmgr => "actor[role='projectmanager']/person/email",
@@ -38,5 +38,5 @@ class Feature
   property :done, Boolean
   property :rejected, Boolean
   property :duplicate, Boolean
-  has n, :actors
+  property :actors, Class
 end
