@@ -52,8 +52,8 @@ module DataMapper::Adapters
     #
     # @api private
     def records_for(query)
-#      $stderr.puts "records_for(#{query})"
-#      $stderr.puts "records_for(#{query.inspect})"
+#      STDERR.puts "records_for(#{query})"
+#      STDERR.puts "records_for(#{query.inspect})"
       records = []
       if query.conditions.nil?
 	# return all
@@ -102,7 +102,7 @@ module DataMapper::Adapters
 	subject = subject.child_key.first
       end
       
-#      $stderr.puts "perform_query(\n\tsubject#{subject.inspect}\n\t#{value.inspect})"
+#      STDERR.puts "perform_query(\n\tsubject#{subject.inspect}\n\t#{value.inspect})"
 
       # typical queries
       #
@@ -127,7 +127,7 @@ module DataMapper::Adapters
       # query=/feature[contains(title,'Foo')]/@k:id
       #
       
-#      $stderr.puts "perform_query(subject #{subject.inspect},#{value.inspect})"
+#      STDERR.puts "perform_query(subject #{subject.inspect},#{value.inspect})"
       container = query.model.to_s.downcase
       if query.model.key.include?(subject)
 	# get single <feature>
@@ -136,12 +136,18 @@ module DataMapper::Adapters
       else
 	xpath = "/#{container}"
 	xpathmap = query.model.xpathmap rescue { }
-	name = xpathmap[subject.name] || subject.name
+	name = xpathmap[subject.name] || subject.name.to_s
 	# query, get <collection>[<object><feature>...]*
 	xpath << "["
 	case operand
 	when DataMapper::Query::Conditions::EqualToComparison
-	  xpath << CGI.escape("#{name} = \"#{value}\"")
+          if name.include? '@'
+            elements = name.split("/")
+            last = elements.pop
+            xpath << CGI.escape("#{elements.join('/')}[#{last}='#{value}']")
+          else
+            xpath << CGI.escape("#{name} = \"#{value}\"")
+          end
 	when DataMapper::Query::Conditions::LikeComparison
 	  xpath << "contains(#{name},'#{CGI.escape(value)}')"
 	else

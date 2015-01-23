@@ -14,7 +14,7 @@ class Get_feature_test < Test::Unit::TestCase
     feature = Feature.get(312814)
     assert feature
     assert_equal 312814, feature.id
-    puts "Feature #{feature.inspect}"
+#    puts "Feature #{feature.inspect}"
   end
 
 end

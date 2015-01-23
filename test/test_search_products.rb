@@ -14,10 +14,23 @@ class Search_product_test < Test::Unit::TestCase
   end
   
   def test_like_product
-    features = Product.all(:shortname.like => 'SUSE Manager')
-    assert features
-    assert features.size > 0
-#    puts "#{features.size} features have 'projects' in their title"
+    products = Product.all(:shortname.like => 'SUSE Manager')
+    assert products
+    assert products.size > 0
+    products.each do |prod|
+      assert_equal 22173, prod.productline
+    end
+  end
+
+  def test_has_productline
+    products = Product.all(:productline => 22173)
+    assert products
+    assert products.size > 0
+  end
+
+  def test_get_product
+    product = Product.get(22241)
+    assert product
   end
 
 end
