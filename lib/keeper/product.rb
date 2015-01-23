@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'dm-core'
+require 'keeper/component'
 require 'keeper/milestone'
 class Product
   include DataMapper::Resource
@@ -16,8 +17,10 @@ class Product
   property :shortname, String
   property :longname, String
   property :bugzillaname, String
-  has n, :milestone
-  # skip milestone, Array needs a custom type
-  # skip component, Array needs a custom type
+  has n, :milestones
+  has n, :components
   property :releasedate, Date
+  def to_s
+    "#{self.id}: #{self.shortname} (#{self.productline})"
+  end
 end

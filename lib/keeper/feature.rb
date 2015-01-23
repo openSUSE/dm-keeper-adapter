@@ -3,7 +3,7 @@
 #
 require 'rubygems'
 require 'dm-core'
-
+require 'keeper/actor'
 class Feature
   include DataMapper::Resource
 
@@ -38,4 +38,5 @@ class Feature
   property :done, Boolean
   property :rejected, Boolean
   property :duplicate, Boolean
+  has n, :actors
 end

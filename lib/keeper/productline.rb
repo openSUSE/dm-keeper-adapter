@@ -11,4 +11,7 @@ class Productline
   end
   property :id, Integer, :key => true
   property :name, String
+  def to_s
+    "#{self.id}: #{self.name}"
+  end
 end
