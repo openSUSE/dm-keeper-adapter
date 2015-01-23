@@ -56,7 +56,7 @@ module DataMapper::Adapters
 #      STDERR.puts "records_for(#{query.inspect})"
       records = []
       if query.conditions.nil?
-	# return all
+        records = perform_query(query, nil)
       else
 	query.conditions.operands.each do |operand|
 	  if operand.is_a?(DataMapper::Query::Conditions::OrOperation)
@@ -87,7 +87,9 @@ module DataMapper::Adapters
       records = []
 #      STDERR.puts "perform_query(query#{query}, operand #{operand})"
        
-      if operand.is_a? DataMapper::Query::Conditions::NotOperation
+      if operand.nil?
+        subject = value = nil
+      elsif operand.is_a? DataMapper::Query::Conditions::NotOperation
 	subject = operand.first.subject
 	value = operand.first.value
       elsif operand.subject.is_a? DataMapper::Associations::ManyToOne::Relationship
@@ -98,7 +100,7 @@ module DataMapper::Adapters
 	value =  operand.value
       end
       
-      if subject.is_a?(DataMapper::Associations::ManyToOne::Relationship)
+      if subject && subject.is_a?(DataMapper::Associations::ManyToOne::Relationship)
 	subject = subject.child_key.first
       end
       
@@ -129,7 +131,10 @@ module DataMapper::Adapters
       
 #      STDERR.puts "perform_query(subject #{subject.inspect},#{value.inspect})"
       container = query.model.to_s.downcase
-      if query.model.key.include?(subject)
+      if operand.nil?
+#        STDERR.puts "GET ALL"
+	records << node_to_record(query.model, get("/#{container}").root)
+      elsif query.model.key.include?(subject)
 	# get single <feature>
 #        STDERR.puts "***\tGET(/#{container}/#{value})"
 	records << node_to_record(query.model, get("/#{container}/#{CGI.escape(value.to_s)}").root)
