@@ -172,16 +172,17 @@ module DataMapper::Adapters
       record = { }
       xpathmap = model.xpathmap rescue { }
       xmlnamespaces = model.xmlnamespaces rescue nil
-#      $stderr.puts "node_to_record(#{model}:#{node.class})"
+#      STDERR.puts "MODEL node_to_record(#{model.properties}<#{node.class}>)"
       model.properties.each do |property|
-	xpath = xpathmap[property.name] || property.name
+        xpath = xpathmap[property.name] || property.name
+#        STDERR.puts "PROPERTY node_to_record property(#{property.inspect})"
 	key = property.name.to_s
 	if key == "raw"
 	  record[key] = node.to_s
 	  next
 	end
 	children = node.xpath("./#{xpath}", xmlnamespaces)	
-#	$stderr.puts "Property found: #{property.inspect}"
+#	STDERR.puts "Property found: #{property.inspect} with #{children.size} children"
 	case children.size
 	when 0
           next
@@ -192,7 +193,7 @@ module DataMapper::Adapters
 	else
 	  value = children.to_xml
 	end
-#	$stderr.puts "Key #{key}, Value #{value.inspect} <#{property.class}>"
+#	STDERR.puts "Key #{key}, Value #{value.inspect} <#{property.class}>"
 	case property
 	when DataMapper::Property::Date
 	  require 'parsedate'
@@ -208,6 +209,9 @@ module DataMapper::Adapters
 	end
       end
       record
+    end
+    def method_missing name, *args
+      STDERR.puts "KeeperAdapter: missing(#{name}, #{args.inspect})"
     end
   end # class
 end # module
