@@ -131,6 +131,7 @@ module DataMapper::Adapters
       container = query.model.to_s.downcase
       if query.model.key.include?(subject)
 	# get single <feature>
+#        STDERR.puts "***\tGET(/#{container}/#{value})"
 	records << node_to_record(query.model, get("/#{container}/#{CGI.escape(value.to_s)}").root)
       else
 	xpath = "/#{container}"
@@ -147,6 +148,7 @@ module DataMapper::Adapters
 	  raise "Unhandled operand #{operand.class}"
 	end
 	xpath << "]"
+#        STDERR.puts "***\tGET(/#{container}?query=#{xpath})"
 	collection = get("/#{container}?query=#{xpath}").root
 	collection.xpath("//#{container}", collection.namespace).each do |node|
 	  records << node_to_record(query.model, node)

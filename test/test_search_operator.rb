@@ -16,7 +16,7 @@ class Search_feature_test < Test::Unit::TestCase
     features = Feature.all(:title.like => 'projects')
     assert features
     assert features.size > 0
-    puts "#{features.size} features have 'projects' in their title"
+#    puts "#{features.size} features have 'projects' in their title"
   end
 
   def test_equal_feature
@@ -31,7 +31,7 @@ class Search_feature_test < Test::Unit::TestCase
     f1 = Feature.all(:product => 'Hackweek VII')
     f2 = Feature.all(:productid => 'hackweek_7')
     assert_equal f1.size, f2.size
-    puts "#{f1.size} projects registered for Hackweek 7"
+#    puts "#{f1.size} projects registered for Hackweek 7"
   end
 
 end
