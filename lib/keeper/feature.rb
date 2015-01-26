@@ -18,7 +18,8 @@ class Feature
       :product => "productcontext/product/name",
       :done => "productcontext/status/done",
       :rejected => "productcontext/status/rejected",
-      :duplicate => "productcontext/status/duplicate"
+      :duplicate => "productcontext/status/duplicate",
+      :actors => "actor"
     }
   end
   def self.xmlnamespaces

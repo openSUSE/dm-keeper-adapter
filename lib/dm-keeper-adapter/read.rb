@@ -196,7 +196,7 @@ module DataMapper::Adapters
 	  next
 	end
 	children = node.xpath("./#{xpath}", xmlnamespaces)	
-#	STDERR.puts "Property found: #{property.inspect} with #{children.size} children"
+#	STDERR.puts "Property found: #{property.inspect} at #{xpath} with #{children.size} children"
 	case children.size
 	when 0
           next
@@ -220,11 +220,23 @@ module DataMapper::Adapters
 	  record[key] = !value.nil?
 	when DataMapper::Property::Class
 #         STDERR.puts "Class property #{property.name.capitalize} value #{value.inspect}"
-          val = DataMapper.const_get(property.name.capitalize).new
           case property.name
           when :productline
+            val = DataMapper.const_get(property.name.capitalize).new
             val.id = children.attribute("id")
             val.name = value.to_s
+          when :actors
+            val = Array.new
+            children.each do |node|
+              actor = DataMapper.const_get("Actor").new
+              actor.role = node.xpath("./role").text.to_s
+              actor.userid = node.xpath("./person/userid").text.to_s
+              actor.email = node.xpath("./person/email").text.to_s
+              actor.fullname = node.xpath("./person/fullname").text.to_s
+              val << actor
+            end
+          else
+            raise TypeError, "'class' property #{property} not implemented"
           end
 	  record[key] = val
 	else
