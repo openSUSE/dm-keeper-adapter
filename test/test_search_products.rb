@@ -18,22 +18,24 @@ class Search_product_test < Test::Unit::TestCase
     assert products
     assert products.size > 0
     products.each do |prod|
-      assert_equal 22173, prod.productline.id
+      assert_equal 22173, prod.productline_id
     end
   end
 
   def test_has_productline
     suma = Productline.all(:name => "SUSE Manager").first
-    puts "suma #{suma}"
-    products = Product.all(:productline => suma.id)
+    products = Product.all(:productline_id => suma.id)
     assert products
     assert products.size > 0
+    products.each do |prod|
+      assert_equal suma.id, prod.productline_id
+    end
   end
 
   def test_get_product
     product = Product.get(22241)
     assert product
-    puts "Productline #{product.productline.inspect}"
+#    puts "Productline #{product.productline.inspect}"
   end
 
 end

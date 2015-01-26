@@ -7,15 +7,15 @@ class Product
   include DataMapper::Resource
   def self.xpathmap
     { :id => "@k:id",
-      :milestone => "milestone/name"
-#      , :productline => "productline/@id"
+      :milestone => "milestone/name",
+      :productline_id => "productline/@id"
     }
   end
   def self.xmlnamespaces
     { "k" => "http://inttools.suse.de/sxkeeper/schema/keeper" }
   end
   property :id, Integer, :key => true
-  property :productline, Class
+  property :productline_id, Integer
   property :fatename, String
   property :shortname, String
   property :longname, String
@@ -24,6 +24,6 @@ class Product
 #  has n, :components
   property :releasedate, Date
   def to_s
-    "#{self.id}: #{self.shortname} (#{self.productline})"
+    "#{self.id}: #{self.shortname} (#{self.productline_id})"
   end
 end
