@@ -224,6 +224,17 @@ module DataMapper::Adapters
               actor.fullname = node.xpath("./person/fullname").text.to_s
               val << actor
             end
+          when :productcontexts
+            val = Array.new
+            children.each do |node|
+              context = DataMapper.const_get("Productcontext").new
+              context.id = node.xpath("./product/productid").text.to_i
+              context.name = node.xpath("./product/name").text.to_s
+              context.done = !node.xpath("./status/done").empty?
+              context.rejected = !node.xpath("./status/rejected").empty?
+              context.duplicate = !node.xpath("./status/duplicate").empty?
+              val << context
+            end
           else
             raise TypeError, "'class' property #{property} not implemented"
           end

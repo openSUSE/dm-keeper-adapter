@@ -4,6 +4,7 @@
 require 'rubygems'
 require 'dm-core'
 require 'keeper/actor'
+require 'keeper/productcontext'
 class Feature
   include DataMapper::Resource
 
@@ -17,10 +18,8 @@ class Feature
       :developer => "actor[role='developer']/person/email",
       :product_id => "productcontext/product/productid",
       :product => "productcontext/product/name",
-      :done => "productcontext/status/done",
-      :rejected => "productcontext/status/rejected",
-      :duplicate => "productcontext/status/duplicate",
-      :actors => "actor"
+      :actors => "actor",
+      :productcontexts => "productcontext"
     }
   end
   def self.xmlnamespaces
@@ -37,8 +36,6 @@ class Feature
   property :milestone, String
   property :product_id, String
   property :product, String
-  property :done, Boolean
-  property :rejected, Boolean
-  property :duplicate, Boolean
   property :actors, Class
+  property :productcontexts, Class
 end

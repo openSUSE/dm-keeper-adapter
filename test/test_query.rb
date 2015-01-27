@@ -53,7 +53,7 @@ class Query_test < Test::Unit::TestCase
   
   # filter on multiple attributes
   def test_features_by_product_and_done
-    features = Feature.all(:product_id => 22332, :done => false)
+    features = Feature.all(:product_id => 22332, :title.like => "Manager 3")
     assert features
     assert features.size > 0
   end
