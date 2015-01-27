@@ -86,7 +86,8 @@ module DataMapper::Adapters
           else
             xpath << "#{name}#{value}"
           end
-          #          when DataMapper::Query::Conditions::LikeComparison
+        when DataMapper::Query::Conditions::LikeComparison
+          xpath << "contains(#{name},'#{value}')"
           #          when DataMapper::Query::Conditions::OrOperation
           #          when DataMapper::Query::Conditions::NotOperation
         else
