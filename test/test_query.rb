@@ -15,28 +15,30 @@ class Query_test < Test::Unit::TestCase
   end
 
   # test get key
-  def xtest_get_feature
+  def test_get_feature
     feature = Feature.get(312814)
-#    assert feature
-#    assert_equal 312814,feature.id
+    assert feature
+    assert_equal 312814,feature.id
   end
 
   # test all
-  def xtest_all_productlines
+  def test_all_productlines
     productlines = Productline.all()
-#    assert productlines
-#    assert productlines.size > 0
+    assert productlines
+    assert productlines.size > 0
   end
   
   # test all by key
-  def xtest_get_product_by_id
-    product = Product.all(:id => 22241)
-    assert product
-    assert_equal 22241, product.id
+  def test_get_product_by_id
+    products = Product.all(:id => 22241)
+    assert products
+    products.each do |product|
+      assert_equal 22241, product.id
+    end
   end
   
   # test filter by attr property
-  def xtest_product_by_productline
+  def test_product_by_productline
     products = Product.all(:productline_id => 22173)
     assert products
     assert products.size > 0
@@ -47,5 +49,12 @@ class Query_test < Test::Unit::TestCase
     products = Productline.all(:name => "SUSE Manager")
     assert products
     assert products.size > 0
+  end
+  
+  # filter on multiple attributes
+  def test_features_by_product_and_done
+    features = Feature.all(:product_id => 22332, :done => false)
+    assert features
+    assert features.size > 0
   end
 end

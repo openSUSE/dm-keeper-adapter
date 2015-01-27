@@ -46,7 +46,7 @@ module DataMapper::Adapters
       #
       xpath = ""
       xpathmap = model.xpathmap rescue { }
-      STDERR.puts "xpath_for(#{model},#{conditions})"
+#      STDERR.puts "xpath_for(#{model},#{conditions})"
       conditions.operands.each do |operand|
         unless xpath.empty?
           case conditions
@@ -62,21 +62,29 @@ module DataMapper::Adapters
         value =  operand.value
         name = xpathmap[subject.name] || subject.name.to_s
         last = nil
-        if name.include? '@'
+        # split out xml attributes
+        if name.include?('@') || subject.is_a?(DataMapper::Property::Boolean)
           elements = name.split('/')
           last = elements.pop
           name = elements.join('/')
         end
         case operand
         when DataMapper::Query::Conditions::EqualToComparison
+          if subject.is_a? DataMapper::Property::Boolean
+            name << "/*"
+            value = value ? "='#{last}'" : "!='#{last}'"
+            last = "name()"
+          else
+            value = "='#{value}'"
+          end
           if last
             if name.nil? || name.empty?
-              xpath << "#{last}='#{value}'"
+              xpath << "#{last}#{value}"
             else
-              xpath << "#{name}[#{last}='#{value}']"
+              xpath << "#{name}[#{last}#{value}]"
             end
           else
-            xpath << "#{name}='#{value}'"
+            xpath << "#{name}#{value}"
           end
           #          when DataMapper::Query::Conditions::LikeComparison
           #          when DataMapper::Query::Conditions::OrOperation
@@ -85,6 +93,7 @@ module DataMapper::Adapters
           puts "*** Operand #{operand.inspect}"
         end
       end
+#      STDERR.puts "#{xpath}"
       xpath
     end
 
@@ -120,36 +129,35 @@ module DataMapper::Adapters
     # query=/feature[contains(title,'Foo')]/@k:id
     #
     def records_for(query)
-      STDERR.puts "records_for(#{query.inspect})"
+#      STDERR.puts "records_for(#{query.inspect})"
       container = query.model.to_s.downcase
       if query.conditions.nil?
         xpath = ""
       else
-        STDERR.puts "conditions(#{query.conditions.inspect})"
+#        STDERR.puts "conditions(#{query.conditions.inspect})"
         #
         # Check if it's a Model.get
         #
         if query.conditions.operands.size == 1
           operand = query.conditions.operands.first
           subject = operand.subject
-          STDERR.puts "Single operand #{operand.inspect}, subject #{subject.inspect}"
-          STDERR.puts "Model key #{query.model.key.inspect}"
+#          STDERR.puts "Single operand #{operand.inspect}, subject #{subject.inspect}"
+#          STDERR.puts "Model key #{query.model.key.inspect}"
           if (operand.is_a?(DataMapper::Query::Conditions::EqualToComparison) &&
               query.model.key.first.name == subject.name)
             xpath = "/#{operand.value}"
           end
         end
-        xpath = "[#{xpath_for(query.model, query.conditions)}]" unless xpath
+        unless xpath
+          xpath = CGI.escape("[#{xpath_for(query.model, query.conditions)}]")
+          xpath = "?query=/#{container}#{xpath}"
+        end
       end
-      STDERR.puts "/#{container}#{xpath}"
-      xpath = "/#{container}#{CGI.escape(xpath)}"
-      records = Array.new
-      puts "XPATH<#{xpath}>"
-#      collection = get(CGI.escape(xpath)).root
-#      collection.xpath("//#{container}", collection.namespace).each do |node|
-#        records << node_to_record(query.model, node)
-#      end
-      records
+      xpath = "/#{container}#{xpath}"
+      collection = get(xpath).root
+      collection.xpath("//#{container}", collection.namespace).map do |node|
+        node_to_record(query.model, node)
+      end
     end
 
     ##

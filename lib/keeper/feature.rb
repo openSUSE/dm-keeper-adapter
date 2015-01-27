@@ -15,7 +15,7 @@ class Feature
       :projectmgr => "actor[role='projectmanager']/person/email",
       :engmgr => "actor[role='teamleader']/person/email",
       :developer => "actor[role='developer']/person/email",
-      :productid => "productcontext/product/productid",
+      :product_id => "productcontext/product/productid",
       :product => "productcontext/product/name",
       :done => "productcontext/status/done",
       :rejected => "productcontext/status/rejected",
@@ -35,7 +35,7 @@ class Feature
   property :engmgr, String
   property :developer, String
   property :milestone, String
-  property :productid, String
+  property :product_id, String
   property :product, String
   property :done, Boolean
   property :rejected, Boolean
