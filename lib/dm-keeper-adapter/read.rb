@@ -34,13 +34,60 @@ module DataMapper::Adapters
   class KeeperAdapter < AbstractAdapter
     require 'nokogiri'
     def read(query)
-      records = records_for(query)
-#      query.filter_records(records)
+      records_for(query)
     end
 
   private
     # taken from https://github.com/whoahbot/dm-redis-adapter/
     
+    def xpath_for(model, conditions)
+      #
+      # Handle Model.all
+      #
+      xpath = ""
+      xpathmap = model.xpathmap rescue { }
+      STDERR.puts "xpath_for(#{model},#{conditions})"
+      conditions.operands.each do |operand|
+        unless xpath.empty?
+          case conditions
+          when DataMapper::Query::Conditions::AndOperation
+            xpath << " and "
+          when DataMapper::Query::Conditions::OrOperation
+            xpath << " or "
+          else
+            puts "*** Condition #{conditions}"
+          end
+        end
+        subject = operand.subject
+        value =  operand.value
+        name = xpathmap[subject.name] || subject.name.to_s
+        last = nil
+        if name.include? '@'
+          elements = name.split('/')
+          last = elements.pop
+          name = elements.join('/')
+        end
+        case operand
+        when DataMapper::Query::Conditions::EqualToComparison
+          if last
+            if name.nil? || name.empty?
+              xpath << "#{last}='#{value}'"
+            else
+              xpath << "#{name}[#{last}='#{value}']"
+            end
+          else
+            xpath << "#{name}='#{value}'"
+          end
+          #          when DataMapper::Query::Conditions::LikeComparison
+          #          when DataMapper::Query::Conditions::OrOperation
+          #          when DataMapper::Query::Conditions::NotOperation
+        else
+          puts "*** Operand #{operand.inspect}"
+        end
+      end
+      xpath
+    end
+
     ##
     # Retrieves records for a particular model.
     #
@@ -50,127 +97,60 @@ module DataMapper::Adapters
     # @return [Array]
     #   An array of hashes of all of the records for a particular model
     #
-    # @api private
+    # typical queries
+    #
+    # ?query=/feature[
+    #   productcontext[
+    #    not (status[done or rejected or duplicate or unconfirmed])
+    #  ]
+    #  and
+    #  actor[
+    #    (person/userid='kkaempf@suse.com' or person/email='kkaempf@suse.com' or person/fullname='kkaempf@suse.com')
+    #    and
+    #    role='projectmanager'
+    #  ]
+    # ]
+    #
+    #  "/#{container}[actor/role='infoprovider']
+    #
+    # query=/feature[title='Foo%20bar%20baz']
+    #
+    # query=/feature[contains(title,'Foo')]
+    # query=/feature[contains(title,'Foo')]/title
+    # query=/feature[contains(title,'Foo')]/@k:id
+    #
     def records_for(query)
-#      STDERR.puts "records_for(#{query})"
-#      STDERR.puts "records_for(#{query.inspect})"
-      records = []
-      if query.conditions.nil?
-        records = perform_query(query, nil)
-      else
-	query.conditions.operands.each do |operand|
-	  if operand.is_a?(DataMapper::Query::Conditions::OrOperation)
-	    operand.each do |op|
-	      records = records + perform_query(query, op)
-	    end
-	  else
-	    records = perform_query(query, operand)
-	  end
-	end
-      end      
-      records
-    end #def
-
-    ##
-    # Find records that match have a matching value
-    #
-    # @param [DataMapper::Query] query
-    #   The query used to locate the resources
-    #
-    # @param [DataMapper::Operation] the operation for the query
-    #
-    # @return [Array]
-    #   An array of hashes of all of the records for a particular model
-    #
-    # @api private
-    def perform_query(query, operand)
-      records = []
-#      STDERR.puts "perform_query(query#{query}, operand #{operand})"
-       
-      if operand.nil?
-        subject = value = nil
-      elsif operand.is_a? DataMapper::Query::Conditions::NotOperation
-	subject = operand.first.subject
-	value = operand.first.value
-      elsif operand.subject.is_a? DataMapper::Associations::ManyToOne::Relationship
-	subject = operand.subject.child_key.first
-	value = operand.value[operand.subject.parent_key.first.name]
-      else
-	subject = operand.subject
-	value =  operand.value
-      end
-      
-      if subject && subject.is_a?(DataMapper::Associations::ManyToOne::Relationship)
-	subject = subject.child_key.first
-      end
-      
-#      STDERR.puts "perform_query(\n\tsubject#{subject.inspect}\n\t#{value.inspect})"
-
-      # typical queries
-      #
-      # ?query=/feature[
-      #   productcontext[
-      #    not (status[done or rejected or duplicate or unconfirmed])
-      #  ]
-      #  and
-      #  actor[
-      #    (person/userid='kkaempf@suse.com' or person/email='kkaempf@suse.com' or person/fullname='kkaempf@suse.com')
-      #    and
-      #    role='projectmanager'
-      #  ]
-      # ]
-      #
-      #  "/#{container}[actor/role='infoprovider']
-      #
-      # query=/feature[title='Foo%20bar%20baz']
-      #
-      # query=/feature[contains(title,'Foo')]
-      # query=/feature[contains(title,'Foo')]/title
-      # query=/feature[contains(title,'Foo')]/@k:id
-      #
-      
-#      STDERR.puts "perform_query(subject #{subject.inspect},#{value.inspect})"
+      STDERR.puts "records_for(#{query.inspect})"
       container = query.model.to_s.downcase
-      if operand.nil?
-#        STDERR.puts "GET ALL #{container}"
-	collection = get("/#{container}").root
-	collection.xpath("//#{container}", collection.namespace).each do |node|
-	  records << node_to_record(query.model, node)
-	end
-      elsif query.model.key.include?(subject)
-	# get single <feature>
-#        STDERR.puts "***\tGET(/#{container}/#{value})"
-	records << node_to_record(query.model, get("/#{container}/#{CGI.escape(value.to_s)}").root)
+      if query.conditions.nil?
+        xpath = ""
       else
-	xpath = "/#{container}"
-	xpathmap = query.model.xpathmap rescue { }
-	name = xpathmap[subject.name] || subject.name.to_s
-	# query, get <collection>[<object><feature>...]*
-	xpath << "["
-	case operand
-	when DataMapper::Query::Conditions::EqualToComparison
-          if name.include? '@'
-            elements = name.split("/")
-            last = elements.pop
-            xpath << CGI.escape("#{elements.join('/')}[#{last}='#{value}']")
-          else
-            xpath << CGI.escape("#{name} = \"#{value}\"")
+        STDERR.puts "conditions(#{query.conditions.inspect})"
+        #
+        # Check if it's a Model.get
+        #
+        if query.conditions.operands.size == 1
+          operand = query.conditions.operands.first
+          subject = operand.subject
+          STDERR.puts "Single operand #{operand.inspect}, subject #{subject.inspect}"
+          STDERR.puts "Model key #{query.model.key.inspect}"
+          if (operand.is_a?(DataMapper::Query::Conditions::EqualToComparison) &&
+              query.model.key.first.name == subject.name)
+            xpath = "/#{operand.value}"
           end
-	when DataMapper::Query::Conditions::LikeComparison
-	  xpath << "contains(#{name},'#{CGI.escape(value)}')"
-	else
-	  raise "Unhandled operand #{operand.class}"
-	end
-	xpath << "]"
-#        STDERR.puts "***\tGET(/#{container}?query=#{xpath})"
-	collection = get("/#{container}?query=#{xpath}").root
-	collection.xpath("//#{container}", collection.namespace).each do |node|
-	  records << node_to_record(query.model, node)
-	end
+        end
+        xpath = "[#{xpath_for(query.model, query.conditions)}]" unless xpath
       end
-
+      STDERR.puts "/#{container}#{xpath}"
+      xpath = "/#{container}#{CGI.escape(xpath)}"
+      records = Array.new
+      puts "XPATH<#{xpath}>"
+#      collection = get(CGI.escape(xpath)).root
+#      collection.xpath("//#{container}", collection.namespace).each do |node|
+#        records << node_to_record(query.model, node)
+#      end
       records
-    end # def
+    end
 
     ##
     # Convert feature (as xml) into record (as hash of key/value pairs)
@@ -246,7 +226,7 @@ module DataMapper::Adapters
       record
     end
     def method_missing name, *args
-      STDERR.puts "KeeperAdapter: missing(#{name}, #{args.inspect})"
+      raise "KeeperAdapter: missing(#{name}, #{args.inspect})"
     end
   end # class
 end # module
